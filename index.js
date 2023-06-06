@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const userSchema = require('./model/User')
 require('dotenv').config();
 
+const usersRouter = require('./routes/UserRoutes')
+
 const DbUri = process.env.MONGODB_URI;
 
 const app = express()
@@ -20,6 +22,8 @@ mongoose.connect(DbUri, { useNewUrlParser: true, useUnifiedTopology: true })
   .catch((error) => {
     console.error('Erro ao conectar com o MongoDB Atlas:', error);
   });
+
+app.use('/users', usersRouter)
 
 app.get('/usuarios', async (req, res) => {
   const users = await User.find()
@@ -72,5 +76,4 @@ app.listen(PORT, () => {
   console.log(`API listening on PORT ${PORT} `)
 })
 
-// Export the Express API
 module.exports = app
