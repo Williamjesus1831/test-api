@@ -11,14 +11,14 @@ require('dotenv').config();
 const User = mongoose.model('User', userSchema)
 
 async function authMiddleware(req, res, next) {
-  const token = localStorage.getItem('token')
+  const token = req.body.token
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded)=>{
-    if(err){
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
       console.log(err)
       return res.status(500).send('logue novamente')
     }
-    if(decoded){
+    if (decoded) {
       req.user = decoded
     }
     next()
@@ -43,7 +43,6 @@ router.post('/registrar', async (req, res) => {
   })
 
   newUser.save().then(res.status(200).send('usuario criado'))
-
 })
 
 router.post('/login', async (req, res) => {
@@ -64,8 +63,6 @@ router.post('/login', async (req, res) => {
 
     const token = jwt.sign({ id: userExist._id }, process.env.JWT_SECRET, { expiresIn: '1h' })
 
-    localStorage.setItem('token', token);
-
     res.status(200).json({ token })
 
   } catch (error) {
@@ -73,9 +70,9 @@ router.post('/login', async (req, res) => {
   }
 })
 
-router.get('/info', authMiddleware, async (req, res) => {
+router.post('/info', authMiddleware, async (req, res) => {
   const userId = req.user.id
-  const userData = await User.findById(userId, {passWord: 0})
+  const userData = await User.findById(userId, { passWord: 0 })
 
   res.status(200).send(userData)
 })
