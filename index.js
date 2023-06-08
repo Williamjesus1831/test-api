@@ -1,13 +1,21 @@
 const express = require('express')
 const mongoose = require('mongoose');
 const userSchema = require('./model/User')
+const cors = require('cors')
 require('dotenv').config();
+
+const corsConfig = {
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}
 
 const usersRouter = require('./routes/UserRoutes')
 
 const DbUri = process.env.MONGODB_URI;
 
 const app = express()
+app.use(cors(corsConfig))
 app.use(express.static('public'));
 app.use(express.json())
 
@@ -32,26 +40,6 @@ app.get('/usuarios', async (req, res) => {
   } else {
     res.status(404).send('nao ha usuarios')
   }
-
-})
-
-app.post("/registrar", async (req, res) => {
-  const json = req.body
-  const userExist = await User.findOne({ name: json.name })
-
-  if (userExist) {
-    console.log(userExist)
-    return res.status(500).send('ja existe este usuario')
-  }
-
-  const newUser = new User({
-    name: json.name,
-    age: json.age
-  })
-
-  newUser.save().then(() => {
-    res.status(200).send('usuario criado')
-  })
 
 })
 
